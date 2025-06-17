@@ -13,11 +13,7 @@ final class DCAAnimationDelegate: NSObject, CAAnimationDelegate {
     var completion: (() -> ())?
     var didStart: (() -> ())?
 
-    func animationDidStop(_ animation: CAAnimation, finished flag: Bool) {
-        completion?()
-    }
+    func animationDidStop(_ animation: CAAnimation, finished flag: Bool) { completion?() }
     
-    func animationDidStart(_ anim: CAAnimation) {
-        didStart?()
-    }
+    func animationDidStart(_ animation: CAAnimation) { didStart?() }
 }

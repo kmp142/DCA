@@ -26,8 +26,6 @@ final class DCAAnimationBuilder {
         case z = "z"
     }
     
-    
-    
     private var animations: [CAAnimation] = []
     private let animationGroupDelegate = DCAAnimationDelegate()
     private var animatableLayer: CALayer = CALayer()
@@ -36,31 +34,9 @@ final class DCAAnimationBuilder {
     
     init(){}
     
-    init(for layer: CALayer) {self.animatableLayer = layer }
-
-    @discardableResult
-    func rotation3D(
-        angle: CGFloat,
-        axisX: CGFloat = 1,
-        axisY: CGFloat = 0,
-        axisZ: CGFloat = 0,
-        duration: Double = 1,
-        repeatCount: Float = 1,
-        timingFunctionName: CAMediaTimingFunctionName = .linear,
-        keyPath: String = "transform.rotation"
-    ) -> DCAAnimationBuilder {
-        let animation = CABasicAnimation(keyPath: keyPath)
-        animation.fromValue = animatableLayer.transform
-        animation.toValue = CATransform3DRotate(animatableLayer.transform, angle, axisX, axisY, axisZ)
-        animation.duration = duration
-        animation.timingFunction = CAMediaTimingFunction(name: timingFunctionName)
-        animation.repeatCount = repeatCount
-        animation.isRemovedOnCompletion = false
-        animation.fillMode = .forwards
-        animations.append(animation)
-        return self
-    }
+    init(for layer: CALayer) { self.animatableLayer = layer }
     
+    @discardableResult
     func rotation(
         angleDegree: CGFloat = 0,
         angleRadians: CGFloat = 0,
@@ -123,17 +99,20 @@ final class DCAAnimationBuilder {
         return self
     }
     
+    @discardableResult
     func perspective(superLayer: CALayer, m34: CGFloat) -> Self {
         superLayer.sublayerTransform.m34 = m34
         return self
     }
     
-    func withCompletion(_ completion: @escaping () -> ()) -> DCAAnimationBuilder{
+    @discardableResult
+    func withCompletion(_ completion: @escaping () -> ()) -> Self {
         self.animationGroupDelegate.completion = completion
         return self
     }
     
-    func withStartFunction(_ startFunction: @escaping () -> ()) -> DCAAnimationBuilder {
+    @discardableResult
+    func withStartFunction(_ startFunction: @escaping () -> ()) -> Self {
         self.animationGroupDelegate.didStart = startFunction
         return self
     }
@@ -162,21 +141,6 @@ final class DCAAnimationBuilder {
     }
     
     @discardableResult
-    func projection(
-        x: CGFloat = 0.002,
-        y: CGFloat = 0.002
-    ) -> DCAAnimationBuilder {
-        var transform = CATransform3DIdentity
-        let animation = CABasicAnimation(keyPath: "transform")
-        animation.fromValue = NSValue(caTransform3D: transform)
-        transform.m14 = x
-        transform.m24 = y
-        animation.toValue = NSValue(caTransform3D: transform)
-        animations.append(animation)
-        return self
-    }
-    
-    @discardableResult
     func pathDeformation(
         for layer: CAShapeLayer,
         to endPathType: DeformationType? = nil,
@@ -186,7 +150,6 @@ final class DCAAnimationBuilder {
         let startPath = layer.path
         
         let endPath = endPathType == nil ? customEndPath : endPathFactory(type: endPathType ?? .ovalIN, bounds: layer.bounds, center: CGPoint(x: layer.bounds.midX, y: layer.bounds.midY))
-        print(endPath)
         let animation = CABasicAnimation(keyPath: "path")
         animation.fromValue = startPath
         animation.toValue = endPath
@@ -195,7 +158,11 @@ final class DCAAnimationBuilder {
         return self
     }
     
-    private func endPathFactory(type: DeformationType, bounds: CGRect, center: CGPoint) -> CGPath {
+    private func endPathFactory(
+        type: DeformationType,
+        bounds: CGRect,
+        center: CGPoint
+    ) -> CGPath {
         switch type {
         case .ovalIN:
             return CGPath(ellipseIn: bounds, transform: nil)
@@ -325,7 +292,7 @@ final class DCAAnimationBuilder {
         keyPath: String = "position",
         isRemovedOnCompletion: Bool = false,
         autoreverses: Bool = false
-    ) -> DCAAnimationBuilder {
+    ) -> Self {
         let keyframeAnimation = CAKeyframeAnimation(keyPath: keyPath)
         keyframeAnimation.values = values.map { CGPoint(x: $0.x, y: $0.y) }
         keyframeAnimation.keyTimes = keyTimes
@@ -338,7 +305,7 @@ final class DCAAnimationBuilder {
         return self
     }
     
-    func withLinearTimingFunction() -> Self{
+    func withLinearTimingFunction() -> Self {
         timingFunction = CAMediaTimingFunction(name: .linear)
         return self
     }
